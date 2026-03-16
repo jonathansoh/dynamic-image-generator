@@ -1,9 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dynamic Image Admin - Text Position Editor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gray: {
+                            650: '#374151',
+                            750: '#2d3748',
+                            850: '#1a202c',
+                            950: '#0d1117',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         /* Load TTF fonts for live preview */
         @font-face {
@@ -31,293 +49,72 @@
             font-style: normal;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        #previewCanvas {
+            cursor: move;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .header {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        .header h1 {
-            color: #667eea;
-            font-size: 2em;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            color: #666;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 30px;
-        }
-
-        .sidebar {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            height: fit-content;
-        }
-
-        .preview-area {
-            background: white;
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        .section {
-            margin-bottom: 25px;
-        }
-
-        .section h3 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.1em;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 8px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #555;
-        }
-
-        .form-group input[type="text"],
-        .form-group input[type="number"],
-        .form-group input[type="file"],
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .form-group input[type="range"] {
-            width: 100%;
-            height: 8px;
-            -webkit-appearance: none;
-            background: #e0e0e0;
-            border-radius: 4px;
-            outline: none;
-        }
-
-        .form-group input[type="range"]::-webkit-slider-thumb {
+        /* Custom range slider styling */
+        input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
-            width: 20px;
-            height: 20px;
-            background: #667eea;
+            background: #374151;
+            border-radius: 0.5rem;
+            height: 0.5rem;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 1.25rem;
+            height: 1.25rem;
+            background: #9333ea;
             border-radius: 50%;
             cursor: pointer;
         }
 
-        .form-group input[type="color"] {
-            width: 100%;
-            height: 50px;
+        input[type="range"]::-moz-range-thumb {
+            width: 1.25rem;
+            height: 1.25rem;
+            background: #9333ea;
+            border-radius: 50%;
+            cursor: pointer;
             border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 14px 28px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            width: 100%;
-        }
-
-        .button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .button:active {
-            transform: translateY(0);
-        }
-
-        .button-success {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        }
-
-        .button-danger {
-            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
-        }
-
-        .image-upload {
-            border: 3px dashed #667eea;
-            border-radius: 10px;
-            padding: 30px;
-            text-align: center;
-            background: #f8f9ff;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .image-upload:hover {
-            background: #f0f2ff;
-        }
-
-        .image-upload input[type="file"] {
-            display: none;
-        }
-
-        .canvas-container {
-            position: relative;
-            display: inline-block;
-            margin: 20px auto;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-        }
-
-        #previewCanvas {
-            display: block;
-            cursor: move;
-        }
-
-        .draggable-text {
-            position: absolute;
-            cursor: move;
-            user-select: none;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
-            padding: 10px;
-            border: 2px dashed rgba(102, 126, 234, 0.5);
-            transition: border-color 0.3s;
-        }
-
-        .draggable-text:hover {
-            border-color: #667eea;
-        }
-
-        .draggable-text.dragging {
-            border-color: #764ba2;
-            opacity: 0.8;
-        }
-
-        .info-box {
-            background: #f0f9ff;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 5px;
-        }
-
-        .info-box p {
-            margin: 5px 0;
-            font-size: 14px;
-            color: #555;
-        }
-
-        .saved-configs {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .config-item {
-            background: #f8f9ff;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            border: 1px solid #e0e0e0;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .config-item:hover {
-            background: #f0f2ff;
-        }
-
-        .config-item.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #667eea;
-        }
-
-        @media (max-width: 1200px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🎨 Dynamic Image Admin</h1>
-            <p>Upload images, drag to position text, customize fonts, and save configurations</p>
+<body class="bg-gray-950 min-h-screen p-4 md:p-6">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="bg-gray-800 rounded-xl p-6 md:p-8 mb-6 shadow-lg">
+            <h1 class="text-2xl md:text-3xl text-white mb-2">🎨 Dynamic Image Admin</h1>
+            <p class="text-gray-400">Upload images, drag to position text, customize fonts, and save configurations</p>
         </div>
 
-        <div class="main-content">
-            <div class="sidebar">
-                <div class="section">
-                    <h3>📤 Upload New Image</h3>
-                    <div class="form-group">
-                        <div class="image-upload" onclick="document.getElementById('imageUpload').click()">
-                            <p>📁 Click to upload image</p>
-                            <input type="file" id="imageUpload" accept="image/*" onchange="handleImageUpload(event)">
-                        </div>
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-[350px_1fr] gap-6">
+            <!-- Sidebar -->
+            <div class="bg-gray-800 rounded-xl p-6 shadow-lg h-fit">
+                <!-- Upload Section -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-white mb-4 pb-2 border-b-2 border-purple-500">📤 Upload New Image</h3>
+                    <div class="border-2 border-dashed border-purple-500 rounded-lg p-6 text-center cursor-pointer hover:bg-gray-750 transition-colors" onclick="document.getElementById('imageUpload').click()">
+                        <p class="text-gray-300">📁 Click to upload image</p>
+                        <input type="file" id="imageUpload" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
                     </div>
                 </div>
 
-                <div class="section">
-                    <h3>🔤 Text Settings</h3>
-                    <div class="form-group">
-                        <label>Preview Text:</label>
-                        <input type="text" id="previewText" value="To: Simon" oninput="updatePreview()">
+                <!-- Text Settings Section -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-white mb-4 pb-2 border-b-2 border-purple-500">🔤 Text Settings</h3>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Preview Text:</label>
+                        <input type="text" id="previewText" value="To: Simon" oninput="updatePreview()" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                     </div>
 
-                    <div class="form-group">
-                        <label>Font Family:</label>
-                        <select id="fontFamily" onchange="updatePreview()">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Font Family:</label>
+                        <select id="fontFamily" onchange="updatePreview()" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                             <option value="OpenSans">Open Sans (Clean)</option>
                             <option value="Roboto">Roboto (Modern)</option>
                             <option value="Caveat">Caveat (Handwritten)</option>
@@ -325,14 +122,14 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label>Font Size: <span id="fontSizeValue">40</span>px</label>
-                        <input type="range" id="fontSize" min="12" max="120" value="40" oninput="updateFontSize()">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Font Size: <span id="fontSizeValue">40</span>px</label>
+                        <input type="range" id="fontSize" min="12" max="120" value="40" oninput="updateFontSize()" class="w-full">
                     </div>
 
-                    <div class="form-group">
-                        <label>Font Weight:</label>
-                        <select id="fontWeight" onchange="updatePreview()">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Font Weight:</label>
+                        <select id="fontWeight" onchange="updatePreview()" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                             <option value="normal">Normal</option>
                             <option value="bold">Bold</option>
                             <option value="100">Thin (100)</option>
@@ -343,66 +140,77 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label>Text Color:</label>
-                        <input type="color" id="fontColor" value="#FFFFFF" oninput="updatePreview()">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Text Color:</label>
+                        <input type="color" id="fontColor" value="#FFFFFF" oninput="updatePreview()" class="w-full h-12 rounded-lg cursor-pointer">
                     </div>
 
-                    <div class="form-group">
-                        <label>Shadow Color:</label>
-                        <input type="color" id="shadowColor" value="#000000" oninput="updatePreview()">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Shadow Color:</label>
+                        <input type="color" id="shadowColor" value="#000000" oninput="updatePreview()" class="w-full h-12 rounded-lg cursor-pointer">
                     </div>
                 </div>
 
-                <div class="section">
-                    <h3>💾 Save Configuration</h3>
-                    <div class="form-group">
-                        <label>Image ID:</label>
-                        <input type="number" id="imageId" value="1" min="1">
+                <!-- Save Configuration Section -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-white mb-4 pb-2 border-b-2 border-purple-500">💾 Save Configuration</h3>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Image ID:</label>
+                        <input type="number" id="imageId" value="1" min="1" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                     </div>
-                    <div class="form-group">
-                        <label>Note (internal reference):</label>
-                        <input type="text" id="configNote" placeholder="e.g., Email banner, Welcome image">
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Note (internal reference):</label>
+                        <input type="text" id="configNote" placeholder="e.g., Email banner, Welcome image" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                     </div>
-                    <button class="button button-success" onclick="saveConfiguration()">Save Configuration</button>
+
+                    <button onclick="saveConfiguration()" class="w-full bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">Save Configuration</button>
                 </div>
 
-                <div class="section">
-                    <h3>📋 Saved Configurations</h3>
-                    <div class="saved-configs" id="savedConfigs">
-                        <div class="info-box">
-                            <p>No configurations saved yet</p>
+                <!-- Saved Configurations Section -->
+                <div>
+                    <h3 class="text-lg font-semibold text-white mb-4 pb-2 border-b-2 border-purple-500">📋 Saved Configurations</h3>
+                    <div class="saved-configs max-h-80 overflow-y-auto" id="savedConfigs">
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <p class="text-gray-400 text-sm">No configurations saved yet</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="preview-area">
-                <div class="section">
-                    <h3>👁️ Preview (Drag text to position)</h3>
-                    <div class="info-box">
-                        <p>💡 Click and drag the text anywhere on the image to set its position</p>
+            <!-- Preview Area -->
+            <div class="bg-gray-800 rounded-xl p-6 shadow-lg">
+                <!-- Preview Section -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-white mb-4 pb-2 border-b-2 border-purple-500">👁️ Preview (Drag text to position)</h3>
+                    <div class="bg-gray-700 rounded-lg p-4 mb-4">
+                        <p class="text-gray-400 text-sm">💡 Click and drag the text anywhere on the image to set its position</p>
                     </div>
-                    <div class="canvas-container" id="canvasContainer">
-                        <canvas id="previewCanvas" width="800" height="400"></canvas>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <h3>🎯 Current Position</h3>
-                    <div class="info-box">
-                        <p>X: <span id="posX">0</span>px, Y: <span id="posY">0</span>px</p>
-                        <p>Relative: <span id="posXRel">0</span>%, <span id="posYRel">0</span>%</p>
+                    <div class="bg-gray-900 rounded-lg overflow-hidden inline-block shadow-lg" id="canvasContainer">
+                        <canvas id="previewCanvas" width="800" height="400" class="max-w-full h-auto"></canvas>
                     </div>
                 </div>
 
-                <div class="section">
-                    <h3>🔗 Test URL</h3>
-                    <div class="form-group">
-                        <input type="text" id="testUrl" readonly style="background: #f5f5f5; font-family: monospace;">
+                <!-- Current Position Section -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-white mb-4 pb-2 border-b-2 border-purple-500">🎯 Current Position</h3>
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <p class="text-gray-300 text-sm mb-1">X: <span id="posX" class="text-purple-400 font-mono">0</span>px, Y: <span id="posY" class="text-purple-400 font-mono">0</span>px</p>
+                        <p class="text-gray-300 text-sm">Relative: <span id="posXRel" class="text-purple-400 font-mono">0</span>%, <span id="posYRel" class="text-purple-400 font-mono">0</span>%</p>
                     </div>
-                    <button class="button" onclick="copyUrl()">Copy URL</button>
-                    <button class="button button-success" onclick="window.open(document.getElementById('testUrl').value, '_blank')">Open in New Tab</button>
+                </div>
+
+                <!-- Test URL Section -->
+                <div>
+                    <h3 class="text-lg font-semibold text-white mb-4 pb-2 border-b-2 border-purple-500">🔗 Test URL</h3>
+                    <div class="mb-3">
+                        <input type="text" id="testUrl" readonly class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-400 font-mono text-sm">
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button onclick="copyUrl()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors">Copy URL</button>
+                        <button onclick="window.open(document.getElementById('testUrl').value, '_blank')" class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">Open in New Tab</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -732,7 +540,7 @@
             const container = document.getElementById('savedConfigs');
 
             if (Object.keys(configs).length === 0) {
-                container.innerHTML = '<div class="info-box"><p>No configurations saved yet</p></div>';
+                container.innerHTML = '<div class="bg-gray-700 rounded-lg p-4"><p class="text-gray-400 text-sm">No configurations saved yet</p></div>';
                 return;
             }
 
@@ -741,14 +549,14 @@
                 const item = document.createElement('div');
                 item.className = 'config-item';
                 item.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div style="flex: 1; cursor: pointer;" onclick="loadConfiguration('${id}')">
-                            <strong>ID: ${id}</strong>
-                            ${config.note ? `<br><small style="color: #666;">📝 ${config.note}</small>` : ''}<br>
-                            <small>Font: ${config.fontFamily} ${config.fontSize}px</small><br>
-                            <small>Pos: ${config.posXRel}%, ${config.posYRel}%</small>
+                    <div class="flex justify-between items-start gap-3 bg-gray-700 hover:bg-gray-650 rounded-lg p-4 cursor-pointer transition-colors">
+                        <div class="flex-1" onclick="loadConfiguration('${id}')">
+                            <span class="text-white font-semibold">ID: ${id}</span>
+                            ${config.note ? `<br><small class="text-gray-400">📝 ${config.note}</small>` : ''}<br>
+                            <small class="text-gray-500">Font: ${config.fontFamily} ${config.fontSize}px</small><br>
+                            <small class="text-gray-500">Pos: ${config.posXRel}%, ${config.posYRel}%</small>
                         </div>
-                        <button class="button-delete" onclick="deleteConfiguration('${id}', event)" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">🗑️ Delete</button>
+                        <button onclick="deleteConfiguration('${id}', event)" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex-shrink-0">🗑️ Delete</button>
                     </div>
                 `;
                 container.appendChild(item);
@@ -818,10 +626,10 @@
             textY = (parseFloat(config.posYRel) / 100) * canvas.height;
 
             // Highlight active config
-            document.querySelectorAll('.config-item').forEach(item => {
-                item.classList.remove('active');
-                if (item.textContent.includes(`Image ID: ${imageId}`)) {
-                    item.classList.add('active');
+            document.querySelectorAll('.config-item > div').forEach(item => {
+                item.classList.remove('ring-2', 'ring-purple-500');
+                if (item.textContent.includes(`ID: ${imageId}`)) {
+                    item.classList.add('ring-2', 'ring-purple-500');
                 }
             });
 

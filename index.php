@@ -108,7 +108,7 @@ if ($text) {
         'opensans' => 'OpenSans.ttf',
         'roboto' => 'Roboto.ttf',
         'caveat' => 'Caveat.ttf',
-        'gloriahallejah' => 'GloriaHallelujah.ttf',
+        'gloriahallelujah' => 'GloriaHallelujah.ttf',
     ];
 
     $fontKey = strtolower(str_replace(' ', '', $config['fontFamily']));
@@ -187,7 +187,7 @@ function createPlaceholderImage($config, $text) {
             'opensans' => 'OpenSans.ttf',
             'roboto' => 'Roboto.ttf',
             'caveat' => 'Caveat.ttf',
-            'gloriahallejah' => 'GloriaHallelujah.ttf',
+            'gloriahallelujah' => 'GloriaHallelujah.ttf',
         ];
 
         $fontKey = strtolower(str_replace(' ', '', $config['fontFamily']));
