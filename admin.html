@@ -330,14 +330,14 @@
             event.target.value = '';
         }
 
-        function updatePreview() {
+        function updatePreview(skipImageCheck = false) {
             // Clear canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             // Draw image
             if (currentImage) {
                 ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
-            } else {
+            } else if (!skipImageCheck) {
                 drawDefaultImage();
                 return;
             }
@@ -621,9 +621,57 @@
             document.getElementById('fontColor').value = config.fontColor;
             document.getElementById('shadowColor').value = config.shadowColor;
 
+            // Resize canvas to saved dimensions if available
+            if (config.canvasWidth && config.canvasHeight) {
+                canvas.width = config.canvasWidth;
+                canvas.height = config.canvasHeight;
+            }
+
             // Calculate position based on saved relative position
             textX = (parseFloat(config.posXRel) / 100) * canvas.width;
             textY = (parseFloat(config.posYRel) / 100) * canvas.height;
+
+            // Load the image for this configuration
+            const img = new Image();
+            img.onload = function() {
+                currentImage = img;
+                updatePreview();
+            };
+            img.onerror = function() {
+                // If image fails to load, draw a gradient background and then the text
+                const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                gradient.addColorStop(0, '#667eea');
+                gradient.addColorStop(1, '#764ba2');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                // Draw text on the gradient background
+                updatePreview(true);
+            };
+
+            // Try to load the image file (try jpg first)
+            img.src = `images/${imageId}.jpg`;
+
+            // Fallback: try loading png if jpg fails after a delay
+            setTimeout(() => {
+                if (!currentImage || (currentImage && !currentImage.complete)) {
+                    const pngImg = new Image();
+                    pngImg.onload = function() {
+                        currentImage = pngImg;
+                        updatePreview();
+                    };
+                    pngImg.onerror = function() {
+                        // PNG also failed, show gradient with text
+                        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                        gradient.addColorStop(0, '#667eea');
+                        gradient.addColorStop(1, '#764ba2');
+                        ctx.fillStyle = gradient;
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        updatePreview(true);
+                    };
+                    pngImg.src = `images/${imageId}.png`;
+                }
+            }, 200);
 
             // Highlight active config
             document.querySelectorAll('.config-item > div').forEach(item => {
@@ -632,8 +680,6 @@
                     item.classList.add('ring-2', 'ring-purple-500');
                 }
             });
-
-            updatePreview();
         }
 
         function copyUrl() {
