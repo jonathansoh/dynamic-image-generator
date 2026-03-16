@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Image Admin - Text Position Editor</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+        }
+
+        .sidebar {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            height: fit-content;
+        }
+
+        .preview-area {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group input[type="file"],
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group input[type="range"] {
+            width: 100%;
+            height: 8px;
+            -webkit-appearance: none;
+            background: #e0e0e0;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .form-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .form-group input[type="color"] {
+            width: 100%;
+            height: 50px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .button-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+
+        .image-upload {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            background: #f8f9ff;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .image-upload:hover {
+            background: #f0f2ff;
+        }
+
+        .image-upload input[type="file"] {
+            display: none;
+        }
+
+        .canvas-container {
+            position: relative;
+            display: inline-block;
+            margin: 20px auto;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        #previewCanvas {
+            display: block;
+            cursor: move;
+        }
+
+        .draggable-text {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            padding: 10px;
+            border: 2px dashed rgba(102, 126, 234, 0.5);
+            transition: border-color 0.3s;
+        }
+
+        .draggable-text:hover {
+            border-color: #667eea;
+        }
+
+        .draggable-text.dragging {
+            border-color: #764ba2;
+            opacity: 0.8;
+        }
+
+        .info-box {
+            background: #f0f9ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .info-box p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .saved-configs {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .config-item {
+            background: #f8f9ff;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .config-item:hover {
+            background: #f0f2ff;
+        }
+
+        .config-item.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Dynamic Image Admin</h1>
+            <p>Upload images, drag to position text, customize fonts, and save configurations</p>
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <div class="section">
+                    <h3>📤 Upload New Image</h3>
+                    <div class="form-group">
+                        <div class="image-upload" onclick="document.getElementById('imageUpload').click()">
+                            <p>📁 Click to upload image</p>
+                            <input type="file" id="imageUpload" accept="image/*" onchange="handleImageUpload(event)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>🔤 Text Settings</h3>
+                    <div class="form-group">
+                        <label>Preview Text:</label>
+                        <input type="text" id="previewText" value="To: Simon" oninput="updatePreview()">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Font Family:</label>
+                        <select id="fontFamily" onchange="updatePreview()">
+                            <option value="OpenSans">Open Sans (Clean)</option>
+                            <option value="Roboto">Roboto (Modern)</option>
+                            <option value="Caveat">Caveat (Handwritten)</option>
+                            <option value="GloriaHallelujah">Gloria Hallelujah (Fun)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Font Size: <span id="fontSizeValue">40</span>px</label>
+                        <input type="range" id="fontSize" min="12" max="120" value="40" oninput="updateFontSize()">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Font Weight:</label>
+                        <select id="fontWeight" onchange="updatePreview()">
+                            <option value="normal">Normal</option>
+                            <option value="bold">Bold</option>
+                            <option value="100">Thin (100)</option>
+                            <option value="300">Light (300)</option>
+                            <option value="500">Medium (500)</option>
+                            <option value="700">Bold (700)</option>
+                            <option value="900">Black (900)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Text Color:</label>
+                        <input type="color" id="fontColor" value="#FFFFFF" oninput="updatePreview()">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Shadow Color:</label>
+                        <input type="color" id="shadowColor" value="#000000" oninput="updatePreview()">
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>💾 Save Configuration</h3>
+                    <div class="form-group">
+                        <label>Image ID:</label>
+                        <input type="number" id="imageId" value="1" min="1">
+                    </div>
+                    <button class="button button-success" onclick="saveConfiguration()">Save Configuration</button>
+                </div>
+
+                <div class="section">
+                    <h3>📋 Saved Configurations</h3>
+                    <div class="saved-configs" id="savedConfigs">
+                        <div class="info-box">
+                            <p>No configurations saved yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-area">
+                <div class="section">
+                    <h3>👁️ Preview (Drag text to position)</h3>
+                    <div class="info-box">
+                        <p>💡 Click and drag the text anywhere on the image to set its position</p>
+                    </div>
+                    <div class="canvas-container" id="canvasContainer">
+                        <canvas id="previewCanvas" width="800" height="400"></canvas>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>🎯 Current Position</h3>
+                    <div class="info-box">
+                        <p>X: <span id="posX">0</span>px, Y: <span id="posY">0</span>px</p>
+                        <p>Relative: <span id="posXRel">0</span>%, <span id="posYRel">0</span>%</p>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>🔗 Test URL</h3>
+                    <div class="form-group">
+                        <input type="text" id="testUrl" readonly style="background: #f5f5f5; font-family: monospace;">
+                    </div>
+                    <button class="button" onclick="copyUrl()">Copy URL</button>
+                    <button class="button button-success" onclick="window.open(document.getElementById('testUrl').value, '_blank')">Open in New Tab</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentImage = null;
+        let textX = 400;
+        let textY = 200;
+        let isDragging = false;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+
+        const canvas = document.getElementById('previewCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSavedConfigs();
+            drawDefaultImage();
+            updateTestUrl();
+
+            // Auto-load config when image ID changes
+            document.getElementById('imageId').addEventListener('change', function() {
+                const imageId = this.value;
+                if (imageId) {
+                    loadConfiguration(imageId);
+                }
+            });
+        });
+
+        function drawDefaultImage() {
+            // Draw a gradient placeholder
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Add some decorative elements
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < 10; i++) {
+                ctx.beginPath();
+                ctx.arc(
+                    Math.random() * canvas.width,
+                    Math.random() * canvas.height,
+                    Math.random() * 50 + 20,
+                    0,
+                    Math.PI * 2
+                );
+                ctx.stroke();
+            }
+
+            currentImage = null;
+            updatePreview();
+        }
+
+        async function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Create FormData for upload
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                // Upload to server
+                const response = await fetch('upload.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Load the uploaded image for preview
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = new Image();
+                        img.onload = function() {
+                            // Resize canvas to match image (max 800px width)
+                            let width = img.width;
+                            let height = img.height;
+
+                            if (width > 800) {
+                                height = (height / width) * 800;
+                                width = 800;
+                            }
+
+                            canvas.width = width;
+                            canvas.height = height;
+
+                            currentImage = img;
+
+                            // Update image ID to the newly uploaded one
+                            document.getElementById('imageId').value = result.imageId;
+                            document.getElementById('imageId').readOnly = true;
+
+                            updatePreview();
+                            updateTestUrl();
+
+                            alert(`✅ Image uploaded successfully as ID: ${result.imageId}`);
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    throw new Error(result.error || 'Upload failed');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert(`❌ Upload failed: ${error.message}`);
+            }
+
+            // Clear the file input
+            event.target.value = '';
+        }
+
+        function updatePreview() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw image
+            if (currentImage) {
+                ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+            } else {
+                drawDefaultImage();
+                return;
+            }
+
+            // Get text settings
+            const text = document.getElementById('previewText').value;
+            const fontSize = document.getElementById('fontSize').value;
+            const fontFamily = document.getElementById('fontFamily').value;
+            const fontWeight = document.getElementById('fontWeight').value;
+            const fontColor = document.getElementById('fontColor').value;
+            const shadowColor = document.getElementById('shadowColor').value;
+
+            // Draw text with shadow
+            ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            // Shadow
+            ctx.fillStyle = shadowColor;
+            ctx.fillText(text, textX + 2, textY + 2);
+
+            // Main text
+            ctx.fillStyle = fontColor;
+            ctx.fillText(text, textX, textY);
+
+            // Update position display
+            updatePositionDisplay();
+            updateTestUrl();
+        }
+
+        function updateFontSize() {
+            const size = document.getElementById('fontSize').value;
+            document.getElementById('fontSizeValue').textContent = size;
+            updatePreview();
+        }
+
+        function updatePositionDisplay() {
+            document.getElementById('posX').textContent = Math.round(textX);
+            document.getElementById('posY').textContent = Math.round(textY);
+
+            const relX = ((textX / canvas.width) * 100).toFixed(1);
+            const relY = ((textY / canvas.height) * 100).toFixed(1);
+            document.getElementById('posXRel').textContent = relX;
+            document.getElementById('posYRel').textContent = relY;
+        }
+
+        function updateTestUrl() {
+            const imageId = document.getElementById('imageId').value;
+            const text = document.getElementById('previewText').value;
+            const url = `${window.location.origin}${window.location.pathname.replace('admin.html', '')}index.php?id=${imageId}&t=${encodeURIComponent(text)}`;
+            document.getElementById('testUrl').value = url;
+        }
+
+        // Drag functionality
+        canvas.addEventListener('mousedown', function(e) {
+            isDragging = true;
+            const rect = canvas.getBoundingClientRect();
+            dragOffsetX = e.clientX - rect.left - textX;
+            dragOffsetY = e.clientY - rect.top - textY;
+            canvas.style.cursor = 'grabbing';
+        });
+
+        canvas.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+
+            const rect = canvas.getBoundingClientRect();
+            textX = e.clientX - rect.left - dragOffsetX;
+            textY = e.clientY - rect.top - dragOffsetY;
+
+            // Constrain to canvas bounds
+            textX = Math.max(0, Math.min(canvas.width, textX));
+            textY = Math.max(0, Math.min(canvas.height, textY));
+
+            updatePreview();
+        });
+
+        canvas.addEventListener('mouseup', function() {
+            isDragging = false;
+            canvas.style.cursor = 'move';
+        });
+
+        canvas.addEventListener('mouseleave', function() {
+            isDragging = false;
+            canvas.style.cursor = 'move';
+        });
+
+        // Touch support
+        canvas.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            isDragging = true;
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            dragOffsetX = touch.clientX - rect.left - textX;
+            dragOffsetY = touch.clientY - rect.top - textY;
+        });
+
+        canvas.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+            if (!isDragging) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            textX = touch.clientX - rect.left - dragOffsetX;
+            textY = touch.clientY - rect.top - dragOffsetY;
+
+            textX = Math.max(0, Math.min(canvas.width, textX));
+            textY = Math.max(0, Math.min(canvas.height, textY));
+
+            updatePreview();
+        });
+
+        canvas.addEventListener('touchend', function() {
+            isDragging = false;
+        });
+
+        async function saveConfiguration() {
+            const config = {
+                imageId: document.getElementById('imageId').value,
+                fontFamily: document.getElementById('fontFamily').value,
+                fontSize: document.getElementById('fontSize').value,
+                fontWeight: document.getElementById('fontWeight').value,
+                fontColor: document.getElementById('fontColor').value,
+                shadowColor: document.getElementById('shadowColor').value,
+                posX: textX,
+                posY: textY,
+                posXRel: ((textX / canvas.width) * 100).toFixed(1),
+                posYRel: ((textY / canvas.height) * 100).toFixed(1),
+                canvasWidth: canvas.width,
+                canvasHeight: canvas.height
+            };
+
+            try {
+                // Save to server via PHP API
+                const response = await fetch('save-config.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(config)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Also save to localStorage as backup
+                    let localConfigs = JSON.parse(localStorage.getItem('dynamicImageConfigs') || '{}');
+                    localConfigs[config.imageId] = config;
+                    localStorage.setItem('dynamicImageConfigs', JSON.stringify(localConfigs));
+
+                    alert(`✅ Configuration saved for Image ID: ${config.imageId}`);
+                    loadSavedConfigs();
+                } else {
+                    throw new Error(result.error || 'Failed to save configuration');
+                }
+            } catch (error) {
+                console.error('Save error:', error);
+                // Fallback to localStorage if server save fails
+                let localConfigs = JSON.parse(localStorage.getItem('dynamicImageConfigs') || '{}');
+                localConfigs[config.imageId] = config;
+                localStorage.setItem('dynamicImageConfigs', JSON.stringify(localConfigs));
+
+                alert(`⚠️ Server save failed. Saved to browser storage only.\nError: ${error.message}`);
+                loadSavedConfigs();
+            }
+        }
+
+        async function loadSavedConfigs() {
+            const container = document.getElementById('savedConfigs');
+
+            try {
+                // Try to load from server first
+                const response = await fetch('save-config.php');
+                const result = await response.json();
+
+                if (result.success && result.configs && Object.keys(result.configs).length > 0) {
+                    // Server has configs
+                    displayConfigs(result.configs);
+                    return;
+                }
+            } catch (error) {
+                console.log('Server configs not available, using localStorage');
+            }
+
+            // Fallback to localStorage
+            const localConfigs = JSON.parse(localStorage.getItem('dynamicImageConfigs') || '{}');
+            displayConfigs(localConfigs);
+        }
+
+        function displayConfigs(configs) {
+            const container = document.getElementById('savedConfigs');
+
+            if (Object.keys(configs).length === 0) {
+                container.innerHTML = '<div class="info-box"><p>No configurations saved yet</p></div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            for (const [id, config] of Object.entries(configs)) {
+                const item = document.createElement('div');
+                item.className = 'config-item';
+                item.innerHTML = `
+                    <strong>Image ID: ${id}</strong><br>
+                    Font: ${config.fontFamily} ${config.fontSize}px<br>
+                    Position: ${config.posXRel}%, ${config.posYRel}%
+                `;
+                item.onclick = () => loadConfiguration(id);
+                container.appendChild(item);
+            }
+        }
+
+        async function loadConfiguration(imageId) {
+            let config = null;
+
+            // Try to load from server first
+            try {
+                const response = await fetch(`save-config.php?id=${imageId}`);
+                const result = await response.json();
+
+                if (result.success && result.config) {
+                    config = result.config;
+                }
+            } catch (error) {
+                console.log('Server config not available, using localStorage');
+            }
+
+            // Fallback to localStorage
+            if (!config) {
+                const localConfigs = JSON.parse(localStorage.getItem('dynamicImageConfigs') || '{}');
+                config = localConfigs[imageId];
+            }
+
+            if (!config) return;
+
+            // Load configuration into form
+            document.getElementById('imageId').value = config.imageId;
+            document.getElementById('fontFamily').value = config.fontFamily;
+            document.getElementById('fontSize').value = config.fontSize;
+            document.getElementById('fontSizeValue').textContent = config.fontSize;
+            document.getElementById('fontWeight').value = config.fontWeight;
+            document.getElementById('fontColor').value = config.fontColor;
+            document.getElementById('shadowColor').value = config.shadowColor;
+
+            // Calculate position based on saved relative position
+            textX = (parseFloat(config.posXRel) / 100) * canvas.width;
+            textY = (parseFloat(config.posYRel) / 100) * canvas.height;
+
+            // Highlight active config
+            document.querySelectorAll('.config-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.textContent.includes(`Image ID: ${imageId}`)) {
+                    item.classList.add('active');
+                }
+            });
+
+            updatePreview();
+        }
+
+        function copyUrl() {
+            const url = document.getElementById('testUrl').value;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('✅ URL copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>

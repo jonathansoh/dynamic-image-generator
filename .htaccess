@@ -1,0 +1,29 @@
+# Apache Configuration for Dynamic Image Generator
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Redirect requests without index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php?id=$1 [QSA,L]
+</IfModule>
+
+# Cache control for generated images
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 1 hour"
+    ExpiresByType image/png "access plus 1 hour"
+    ExpiresByType image/gif "access plus 1 hour"
+</IfModule>
+
+# Protect sensitive files
+<FilesMatch "^(config|\.env|\.htaccess)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Enable GZIP compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/javascript
+</IfModule>

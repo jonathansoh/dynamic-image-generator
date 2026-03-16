@@ -1,0 +1,18 @@
+# Ignore large image files
+images/*.jpg
+images/*.png
+images/*.gif
+images/*.webp
+
+# Keep the example structure
+!images/.gitkeep
+
+# PHP configuration
+.env.local
+.env.production
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
