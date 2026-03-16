@@ -45,6 +45,7 @@ try {
             $imageId = $input['imageId'];
             $configs[$imageId] = [
                 'imageId' => $imageId,
+                'note' => $input['note'] ?? '',
                 'fontFamily' => $input['fontFamily'] ?? 'Arial',
                 'fontSize' => (int)($input['fontSize'] ?? 40),
                 'fontWeight' => $input['fontWeight'] ?? 'normal',

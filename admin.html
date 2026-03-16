@@ -5,6 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dynamic Image Admin - Text Position Editor</title>
     <style>
+        /* Load TTF fonts for live preview */
+        @font-face {
+            font-family: 'OpenSansTTF';
+            src: url('fonts/OpenSans.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'RobotoTTF';
+            src: url('fonts/Roboto.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'CaveatTTF';
+            src: url('fonts/Caveat.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'GloriaHallelujahTTF';
+            src: url('fonts/GloriaHallelujah.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -334,6 +360,10 @@
                         <label>Image ID:</label>
                         <input type="number" id="imageId" value="1" min="1">
                     </div>
+                    <div class="form-group">
+                        <label>Note (internal reference):</label>
+                        <input type="text" id="configNote" placeholder="e.g., Email banner, Welcome image">
+                    </div>
                     <button class="button button-success" onclick="saveConfiguration()">Save Configuration</button>
                 </div>
 
@@ -512,8 +542,17 @@
             const fontColor = document.getElementById('fontColor').value;
             const shadowColor = document.getElementById('shadowColor').value;
 
+            // Map font family to TTF font for preview
+            const fontMap = {
+                'OpenSans': 'OpenSansTTF',
+                'Roboto': 'RobotoTTF',
+                'Caveat': 'CaveatTTF',
+                'GloriaHallelujah': 'GloriaHallelujahTTF'
+            };
+            const ttfFont = fontMap[fontFamily] || 'OpenSansTTF';
+
             // Draw text with shadow
-            ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+            ctx.font = `${fontWeight} ${fontSize}px ${ttfFont}`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
 
@@ -618,6 +657,7 @@
         async function saveConfiguration() {
             const config = {
                 imageId: document.getElementById('imageId').value,
+                note: document.getElementById('configNote').value,
                 fontFamily: document.getElementById('fontFamily').value,
                 fontSize: document.getElementById('fontSize').value,
                 fontWeight: document.getElementById('fontWeight').value,
@@ -701,12 +741,42 @@
                 const item = document.createElement('div');
                 item.className = 'config-item';
                 item.innerHTML = `
-                    <strong>Image ID: ${id}</strong><br>
-                    Font: ${config.fontFamily} ${config.fontSize}px<br>
-                    Position: ${config.posXRel}%, ${config.posYRel}%
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div style="flex: 1; cursor: pointer;" onclick="loadConfiguration('${id}')">
+                            <strong>ID: ${id}</strong>
+                            ${config.note ? `<br><small style="color: #666;">📝 ${config.note}</small>` : ''}<br>
+                            <small>Font: ${config.fontFamily} ${config.fontSize}px</small><br>
+                            <small>Pos: ${config.posXRel}%, ${config.posYRel}%</small>
+                        </div>
+                        <button class="button-delete" onclick="deleteConfiguration('${id}', event)" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">🗑️ Delete</button>
+                    </div>
                 `;
-                item.onclick = () => loadConfiguration(id);
                 container.appendChild(item);
+            }
+        }
+
+        async function deleteConfiguration(imageId, event) {
+            event.stopPropagation();
+
+            if (!confirm(`Are you sure you want to delete configuration for Image ID ${imageId}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`save-config.php?id=${imageId}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`✅ Configuration deleted for Image ID: ${imageId}`);
+                    loadSavedConfigs();
+                } else {
+                    throw new Error(result.error || 'Failed to delete configuration');
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                alert(`❌ Failed to delete: ${error.message}`);
             }
         }
 
@@ -735,6 +805,7 @@
 
             // Load configuration into form
             document.getElementById('imageId').value = config.imageId;
+            document.getElementById('configNote').value = config.note || '';
             document.getElementById('fontFamily').value = config.fontFamily;
             document.getElementById('fontSize').value = config.fontSize;
             document.getElementById('fontSizeValue').textContent = config.fontSize;
