@@ -95,7 +95,7 @@ $imageHeight = imagesy($image);
 // If canvas was 800px but actual image is 1920px, scale font by 2.4x
 $canvasWidth = $config['canvasWidth'] ?? 800;
 $actualImageWidth = $config['originalImageWidth'] ?? $imageWidth;
-$fontScale = ($imageWidth / $canvasWidth) * 0.75;  // Scale down 25% for better match
+$fontScale = ($imageWidth / $canvasWidth) * 0.85;  // Scale down 25% for better match
 $scaledFontSize = (int)($config['fontSize'] * $fontScale);
 
 // Calculate text position from relative percentage
@@ -126,7 +126,7 @@ if ($text) {
         // Use TrueType font
         $angle = 0;
 
-        // Convert pixels to points for GD library
+        // Convert pixels to points for GD library (1px = 0.75pt at 96 DPI)
         $fontSizeInPoints = $scaledFontSize * 0.9;
         $bbox = imagettfbbox($fontSizeInPoints, $angle, $fontPath, $text);
 
@@ -137,8 +137,11 @@ if ($text) {
         // The bbox[0] is the left edge offset from the baseline origin
         $x = $textX - $textWidth / 2 - $bbox[0];
 
-        // Center vertically: use baseline + half font size - offset
+        // Center vertically: use baseline + half font size to match canvas textBaseline='middle'
         $y = $textY + $scaledFontSize / 2 - 18;
+
+        // Debug: Log Y calculation (check error.log)
+        error_log("Y Position Debug: textY=$textY, bbox[1]=" . $bbox[1] . ", bbox[7]=" . $bbox[7] . ", textHeight=$textHeight, y=$y");
 
         // Add shadow
         imagettftext($image, $fontSizeInPoints, $angle, $x + 2, $y + 2, $shadowColor, $fontPath, $text);
@@ -214,16 +217,16 @@ function createPlaceholderImage($config, $text) {
         if (file_exists($fontPath)) {
             $angle = 0;
 
-            // Convert pixels to points for GD library
-            $fontSizeInPoints = $scaledFontSize * 0.9;
+            // Convert pixels to points for GD library (1px = 0.75pt at 96 DPI)
+            $fontSizeInPoints = $scaledFontSize * 0.75;
             $bbox = imagettfbbox($fontSizeInPoints, $angle, $fontPath, $text);
 
             // Calculate text dimensions for centering (matching canvas textAlign='center' and textBaseline='middle')
             $textWidth = $bbox[2] - $bbox[0];
             $x = $textX - $textWidth / 2 - $bbox[0];
 
-            // Center vertically: use baseline + half font size - offset
-            $y = $textY + $scaledFontSize / 2 - 18;
+            // Center vertically: use baseline + half font size
+            $y = $textY + $scaledFontSize / 2;
 
             imagettftext($image, $fontSizeInPoints, $angle, $x + 2, $y + 2, $shadowColor, $fontPath, $text);
             imagettftext($image, $fontSizeInPoints, $angle, $x, $y, $fontColor, $fontPath, $text);
