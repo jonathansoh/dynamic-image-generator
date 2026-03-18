@@ -138,6 +138,9 @@ if ($text) {
         // The bbox[1] is the Y coordinate of the bottom edge (baseline is roughly in the middle)
         $y = $textY - $bbox[1] / 1.35;  // Fine-tuned to move text down slightly
 
+        // Debug: Log Y calculation (check error.log)
+        error_log("Y Position Debug: textY=$textY, bbox[1]=" . $bbox[1] . ", y=$y, divisor=1.35");
+
         // Add shadow
         imagettftext($image, $scaledFontSize, $angle, $x + 2, $y + 2, $shadowColor, $fontPath, $text);
 
