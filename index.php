@@ -91,6 +91,13 @@ if (!$image) {
 $imageWidth = imagesx($image);
 $imageHeight = imagesy($image);
 
+// Scale font size based on actual image vs canvas dimensions
+// If canvas was 800px but actual image is 1920px, scale font by 2.4x
+$canvasWidth = $config['canvasWidth'] ?? 800;
+$actualImageWidth = $config['originalImageWidth'] ?? $imageWidth;
+$fontScale = $imageWidth / $canvasWidth;
+$scaledFontSize = (int)($config['fontSize'] * $fontScale);
+
 // Calculate text position from relative percentage
 $textX = ($config['posXRel'] / 100) * $imageWidth;
 $textY = ($config['posYRel'] / 100) * $imageHeight;
@@ -118,7 +125,7 @@ if ($text) {
     if (file_exists($fontPath)) {
         // Use TrueType font
         $angle = 0;
-        $bbox = imagettfbbox($config['fontSize'], $angle, $fontPath, $text);
+        $bbox = imagettfbbox($scaledFontSize, $angle, $fontPath, $text);
 
         // Calculate text dimensions for centering (matching canvas textAlign='center' and textBaseline='middle')
         $textWidth = $bbox[2] - $bbox[0];
@@ -132,10 +139,10 @@ if ($text) {
         $y = $textY - $bbox[1] / 1.5;
 
         // Add shadow
-        imagettftext($image, $config['fontSize'], $angle, $x + 2, $y + 2, $shadowColor, $fontPath, $text);
+        imagettftext($image, $scaledFontSize, $angle, $x + 2, $y + 2, $shadowColor, $fontPath, $text);
 
         // Add main text
-        imagettftext($image, $config['fontSize'], $angle, $x, $y, $fontColor, $fontPath, $text);
+        imagettftext($image, $scaledFontSize, $angle, $x, $y, $fontColor, $fontPath, $text);
     } else {
         // Font not found - show error in image
         $errorColor = imagecolorallocate($image, 255, 0, 0);
@@ -177,6 +184,11 @@ function createPlaceholderImage($config, $text) {
     $textX = ($config['posXRel'] / 100) * $width;
     $textY = ($config['posYRel'] / 100) * $height;
 
+    // Scale font size (placeholder is 800px wide)
+    $canvasWidth = $config['canvasWidth'] ?? 800;
+    $fontScale = $width / $canvasWidth;
+    $scaledFontSize = (int)($config['fontSize'] * $fontScale);
+
     // Parse colors
     list($fr, $fg, $fb) = sscanf($config['fontColor'], '#%02x%02x%02x');
     list($sr, $sg, $sb) = sscanf($config['shadowColor'], '#%02x%02x%02x');
@@ -199,15 +211,15 @@ function createPlaceholderImage($config, $text) {
 
         if (file_exists($fontPath)) {
             $angle = 0;
-            $bbox = imagettfbbox($config['fontSize'], $angle, $fontPath, $text);
+            $bbox = imagettfbbox($scaledFontSize, $angle, $fontPath, $text);
 
             // Calculate text dimensions for centering (matching canvas textAlign='center' and textBaseline='middle')
             $textWidth = $bbox[2] - $bbox[0];
             $x = $textX - $textWidth / 2 - $bbox[0];
             $y = $textY - $bbox[1] / 1.5;
 
-            imagettftext($image, $config['fontSize'], $angle, $x + 2, $y + 2, $shadowColor, $fontPath, $text);
-            imagettftext($image, $config['fontSize'], $angle, $x, $y, $fontColor, $fontPath, $text);
+            imagettftext($image, $scaledFontSize, $angle, $x + 2, $y + 2, $shadowColor, $fontPath, $text);
+            imagettftext($image, $scaledFontSize, $angle, $x, $y, $fontColor, $fontPath, $text);
         } else {
             // Fallback to built-in font if TTF not found
             $fontVariant = 5;

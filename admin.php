@@ -237,6 +237,7 @@ require_once 'auth.php';
 
     <script>
         let currentImage = null;
+        let originalImageWidth = 800;  // Track original image width for font scaling
         let textX = 400;
         let textY = 200;
         let isDragging = false;
@@ -311,6 +312,9 @@ require_once 'auth.php';
                     reader.onload = function(e) {
                         const img = new Image();
                         img.onload = function() {
+                            // Store original image width for font scaling
+                            originalImageWidth = img.width;
+
                             // Resize canvas to match image (max 800px width)
                             let width = img.width;
                             let height = img.height;
@@ -363,14 +367,7 @@ require_once 'auth.php';
 
             // Get text settings
             const text = document.getElementById('previewText').value;
-            let fontSize = document.getElementById('fontSize').value;
-
-            // Account for CSS scaling (canvas is displayed smaller than actual dimensions)
-            const displayWidth = canvas.getBoundingClientRect().width;
-            const actualWidth = canvas.width;
-            const scale = actualWidth / displayWidth;
-            fontSize = fontSize * scale;
-
+            const fontSize = document.getElementById('fontSize').value;
             const fontFamily = document.getElementById('fontFamily').value;
             const fontWeight = document.getElementById('fontWeight').value;
             const fontColor = document.getElementById('fontColor').value;
@@ -502,7 +499,8 @@ require_once 'auth.php';
                 posXRel: ((textX / canvas.width) * 100).toFixed(1),
                 posYRel: ((textY / canvas.height) * 100).toFixed(1),
                 canvasWidth: canvas.width,
-                canvasHeight: canvas.height
+                canvasHeight: canvas.height,
+                originalImageWidth: originalImageWidth
             };
 
             try {

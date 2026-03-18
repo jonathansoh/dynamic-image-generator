@@ -59,6 +59,7 @@ try {
                 'posYRel' => (float)($input['posYRel'] ?? 50),
                 'canvasWidth' => (int)($input['canvasWidth'] ?? 800),
                 'canvasHeight' => (int)($input['canvasHeight'] ?? 400),
+                'originalImageWidth' => (int)($input['originalImageWidth'] ?? 800),
                 'updatedAt' => date('Y-m-d H:i:s')
             ];
 
