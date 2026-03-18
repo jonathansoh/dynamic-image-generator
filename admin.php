@@ -419,7 +419,7 @@ require_once 'auth.php';
         function updateTestUrl() {
             const imageId = document.getElementById('imageId').value;
             const text = document.getElementById('previewText').value;
-            const url = `${window.location.origin}${window.location.pathname.replace('admin.html', '')}index.php?id=${imageId}&t=${encodeURIComponent(text)}`;
+            const url = `${window.location.origin}${window.location.pathname.replace('admin.php', '')}index.php?id=${imageId}&t=${encodeURIComponent(text)}`;
             document.getElementById('testUrl').value = url;
         }
 

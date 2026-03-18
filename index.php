@@ -95,7 +95,7 @@ $imageHeight = imagesy($image);
 // If canvas was 800px but actual image is 1920px, scale font by 2.4x
 $canvasWidth = $config['canvasWidth'] ?? 800;
 $actualImageWidth = $config['originalImageWidth'] ?? $imageWidth;
-$fontScale = ($imageWidth / $canvasWidth) * 0.90;  // Scale down 10% for better match
+$fontScale = ($imageWidth / $canvasWidth) * 0.75;  // Scale down 25% for better match
 $scaledFontSize = (int)($config['fontSize'] * $fontScale);
 
 // Calculate text position from relative percentage
@@ -190,7 +190,7 @@ function createPlaceholderImage($config, $text) {
 
     // Scale font size (placeholder is 800px wide)
     $canvasWidth = $config['canvasWidth'] ?? 800;
-    $fontScale = ($width / $canvasWidth) * 0.90;  // Scale down 10% for better match
+    $fontScale = ($width / $canvasWidth) * 0.75;  // Scale down 25% for better match
     $scaledFontSize = (int)($config['fontSize'] * $fontScale);
 
     // Parse colors
