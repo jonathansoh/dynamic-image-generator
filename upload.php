@@ -4,6 +4,8 @@
  * Handles uploading images to the images directory
  */
 
+require_once 'auth.php';
+
 header('Content-Type: application/json');
 
 $imagesDir = __DIR__ . '/images/';

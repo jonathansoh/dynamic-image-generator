@@ -2,26 +2,26 @@
 
 A powerful PHP-based image generator that adds personalized text overlays to images - perfect for email personalization. Includes a drag-and-drop admin interface for easy configuration.
 
-## 🚀 Features
+## Features
 
-- ✅ **Web-based Admin Interface** - Upload images, drag text to position, customize fonts
-- ✅ **Drag & Drop Text Positioning** - Interactive canvas for precise text placement
-- ✅ **Font Customization** - Multiple font families, sizes, weights, and colors
-- ✅ **Real-time Preview** - See changes instantly
-- ✅ **Configuration Management** - Save and load settings per image
-- ✅ **Server-side Storage** - Configurations saved to JSON files
-- ✅ **Client-side Fallback** - Works with localStorage if server unavailable
-- ✅ **Automatic Image Upload** - Upload and assign image IDs automatically
-- ✅ **TrueType Font Support** - Better rendering with .ttf fonts
-- ✅ **Responsive Design** - Works on desktop and mobile devices
+- **Web-based Admin Interface** - Upload images, drag text to position, customize fonts
+- **Drag & Drop Text Positioning** - Interactive canvas for precise text placement
+- **Font Customization** - Multiple font families, sizes, weights, and colors
+- **Real-time Preview** - See changes instantly
+- **Configuration Management** - Save and load settings per image
+- **Server-side Storage** - Configurations saved to JSON files
+- **Client-side Fallback** - Works with localStorage if server unavailable
+- **Automatic Image Upload** - Upload and assign image IDs automatically
+- **TrueType Font Support** - Better rendering with .ttf fonts
+- **Responsive Design** - Works on desktop and mobile devices
 
-## 📋 Usage
+## Usage
 
 ### Admin Interface
 
 Open the admin panel:
 ```
-https://yourdomain.com/img/admin.html
+https://yourdomain.com/img/admin.php
 ```
 
 1. **Upload an image** - Click the upload area to select an image file
@@ -50,14 +50,19 @@ Email personalization:
 https://yourdomain.com/img/index.php?id=1&t=To:+{{name}}
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 img/
-├── admin.html              # Admin interface with drag-drop editor
+├── admin.php              # Admin interface with drag-drop editor (password protected)
 ├── index.php               # Main image generation script
-├── upload.php              # Image upload handler
-├── save-config.php         # Configuration save/load API
+├── upload.php              # Image upload handler (password protected)
+├── save-config.php         # Configuration save/load API (password protected)
+├── auth.php                # Authentication middleware
+├── login.php               # Login page
+├── logout.php              # Logout handler
+├── .env                    # Your credentials (create from .env.example)
+├── .env.example            # Sample credentials file
 ├── setup-fonts.php         # Auto-download TTF fonts
 ├── config.php              # Configuration file (optional)
 ├── create-default-image.php # Script to create placeholder image
@@ -65,10 +70,11 @@ img/
 │   ├── 1.jpg
 │   ├── 2.jpg
 │   └── default.jpg
-├── fonts/                  # TrueType font files (auto-downloaded)
-│   ├── opensans.ttf
-│   ├── roboto.ttf
-│   └── ...
+├── fonts/                  # TrueType font files
+│   ├── OpenSans.ttf
+│   ├── Roboto.ttf
+│   ├── Caveat.ttf
+│   └── GloriaHallelujah.ttf
 ├── configs.json            # Saved configurations (auto-created)
 ├── README.md               # This file
 ├── DEPLOY.md               # Deployment guide
@@ -76,7 +82,7 @@ img/
 └── .htaccess               # Apache configuration
 ```
 
-## 🎨 Admin Interface Features
+## Admin Interface Features
 
 ### Upload Images
 - Click the upload area to select an image
@@ -103,7 +109,7 @@ img/
 - Configurations persist across sessions
 - Server-side storage with client-side fallback
 
-## 🔧 Setup
+## Setup
 
 ### 1. Upload to Server
 
@@ -112,7 +118,26 @@ Upload the entire `img/` folder to your web server:
 /var/www/html/img/
 ```
 
-### 2. Set Permissions
+### 2. Configure Admin Access
+
+**Create .env file:**
+```bash
+# Copy the example file
+cp .env.example .env
+
+# Edit with your credentials
+# ADMIN_USERNAME=admin
+# ADMIN_PASSWORD=your_secure_password_here
+```
+
+**Via cPanel File Manager:**
+1. Go to `public_html/img/`
+2. Copy `.env.example` → Paste as `.env`
+3. Edit `.env` and set your username/password
+
+**Important:** Never commit `.env` to git! It contains your actual credentials.
+
+### 3. Set Permissions
 
 ```bash
 cd /var/www/html/img
@@ -140,10 +165,21 @@ Open `google-fonts-guide.html` in your browser to download:
 
 ### 4. Test Admin Interface
 
+**Note:** The admin panel is now password protected.
+
 Open in your browser:
 ```
-https://yourdomain.com/img/admin.html
+https://yourdomain.com/img/admin.php
 ```
+
+You will be redirected to the login page. Enter your credentials from `.env`:
+- Default username: `admin`
+- Default password: See `.env` file (change it immediately!)
+
+**Security:** Make sure to:
+1. Create `.env` from `.env.example`
+2. Set a strong password
+3. Never share or commit `.env`
 
 ### 5. Test Image Generation
 
@@ -151,7 +187,7 @@ https://yourdomain.com/img/admin.html
 https://yourdomain.com/img/index.php?id=1&t=Test
 ```
 
-## 📧 Email Integration
+## Email Integration
 
 ### Example Email Template
 
@@ -171,7 +207,7 @@ Your Team
 
 Replace `{{name}}` with your email provider's merge tag.
 
-## 🛠️ Configuration Options
+## Configuration Options
 
 ### Default Settings (in index.php)
 
@@ -199,14 +235,14 @@ Images are cached for 1 hour by default. To change this, edit the cache headers 
 header('Cache-Control: public, max-age=3600'); // 3600 seconds = 1 hour
 ```
 
-## 🌐 Server Requirements
+## Server Requirements
 
-- ✅ PHP 7.0 or higher
-- ✅ GD Library (usually pre-installed)
-- ✅ Apache or Nginx web server
-- ✅ File write permissions for `images/` and `configs.json`
+- PHP 7.0 or higher
+- GD Library (usually pre-installed)
+- Apache or Nginx web server
+- File write permissions for `images/` and `configs.json`
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### Image not loading?
 - Check PHP error log: `/var/log/apache2/error.log`
@@ -232,7 +268,7 @@ header('Cache-Control: public, max-age=3600'); // 3600 seconds = 1 hour
 - Try darker colors for light backgrounds
 - Increase font size
 
-## 📊 API Endpoints
+## API Endpoints
 
 ### Save Configuration
 ```http
@@ -268,7 +304,7 @@ Content-Type: multipart/form-data
 image: <file>
 ```
 
-## 🔒 Security
+## Security
 
 - Image IDs are forced to integers to prevent directory traversal
 - File types are validated (JPG, PNG, GIF only)
@@ -276,7 +312,7 @@ image: <file>
 - No direct database access required
 - Configurations stored in JSON files
 
-## 📈 Performance Tips
+## Performance Tips
 
 1. **Optimize images** before uploading (TinyPNG, ImageOptim)
 2. **Use JPEG** for photos (smaller file size)
@@ -284,22 +320,22 @@ image: <file>
 4. **Consider CDN** for high-traffic sites
 5. **Use TrueType fonts** for better rendering quality
 
-## 🆘 Support
+## Support
 
 For detailed deployment instructions, see [DEPLOY.md](DEPLOY.md)
 
 For quick setup, see [QUICKSTART.md](QUICKSTART.md)
 
-## 📝 Changelog
+## Changelog
 
 ### v2.0 (Current)
-- ✨ Added web-based admin interface
-- ✨ Drag & drop text positioning
-- ✨ Font customization options
-- ✨ Configuration management system
-- ✨ Image upload with auto-ID assignment
-- ✨ TrueType font support
-- ✨ Server-side configuration storage
+- Added web-based admin interface
+- Drag & drop text positioning
+- Font customization options
+- Configuration management system
+- Image upload with auto-ID assignment
+- TrueType font support
+- Server-side configuration storage
 
 ### v1.0
 - Basic dynamic image generation
@@ -308,4 +344,4 @@ For quick setup, see [QUICKSTART.md](QUICKSTART.md)
 
 ---
 
-Built with ❤️ for personalized email campaigns
+Built for personalized email campaigns

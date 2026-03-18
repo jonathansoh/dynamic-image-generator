@@ -4,6 +4,8 @@
  * Handles saving and loading text positioning and style configurations
  */
 
+require_once 'auth.php';
+
 header('Content-Type: application/json');
 
 $configFile = __DIR__ . '/configs.json';

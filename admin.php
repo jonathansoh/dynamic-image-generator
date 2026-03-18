@@ -1,3 +1,11 @@
+<?php
+/**
+ * Admin Dashboard - Dynamic Image Generator
+ * Password protected admin interface
+ */
+
+require_once 'auth.php';
+?>
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
@@ -11,11 +19,16 @@
             theme: {
                 extend: {
                     colors: {
-                        gray: {
-                            650: '#374151',
-                            750: '#2d3748',
-                            850: '#1a202c',
-                            950: '#0d1117',
+                        primary: {
+                            DEFAULT: '#F37021',
+                            hover: '#F04E23',
+                        },
+                        dark: {
+                            DEFAULT: '#3D191A',
+                            light: '#4a2122',
+                        },
+                        light: {
+                            DEFAULT: '#FFF1E2',
                         }
                     }
                 }
@@ -57,7 +70,7 @@
         input[type="range"] {
             -webkit-appearance: none;
             appearance: none;
-            background: #374151;
+            background: #4a2122;
             border-radius: 0.5rem;
             height: 0.5rem;
         }
@@ -67,7 +80,7 @@
             appearance: none;
             width: 1.25rem;
             height: 1.25rem;
-            background: #9333ea;
+            background: #F37021;
             border-radius: 50%;
             cursor: pointer;
         }
@@ -75,46 +88,52 @@
         input[type="range"]::-moz-range-thumb {
             width: 1.25rem;
             height: 1.25rem;
-            background: #9333ea;
+            background: #F37021;
             border-radius: 50%;
             cursor: pointer;
             border: none;
         }
     </style>
 </head>
-<body class="bg-gray-950 min-h-screen p-4 md:p-6">
+<body class="bg-dark min-h-screen p-4 md:p-6">
     <div class="max-w-7xl mx-auto">
         <!-- Header -->
-        <div class="bg-gray-800 rounded-xl p-6 md:p-8 mb-6 shadow-lg">
-            <h1 class="text-2xl md:text-3xl text-white mb-2">🎨 Dynamic Image Admin</h1>
-            <p class="text-gray-400">Upload images, drag to position text, customize fonts, and save configurations</p>
+        <div class="bg-dark-light rounded-xl p-6 md:p-8 mb-6 shadow-lg flex justify-between items-start">
+            <div>
+                <h1 class="text-2xl md:text-3xl text-light mb-2">Dynamic Image Admin</h1>
+                <p class="text-light/70">Upload images, drag to position text, customize fonts, and save configurations</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-light/70 text-sm hidden sm:block">Logged in as <strong class="text-primary"><?php echo htmlspecialchars($_SESSION['username'] ?? 'Admin'); ?></strong></span>
+                <a href="logout.php" class="bg-dark hover:bg-dark/80 text-light px-4 py-2 rounded-lg text-sm font-medium transition-colors">Logout</a>
+            </div>
         </div>
 
         <!-- Main Content -->
         <div class="grid grid-cols-1 lg:grid-cols-[350px_1fr] gap-6">
             <!-- Sidebar -->
-            <div class="bg-gray-800 rounded-xl p-6 shadow-lg h-fit">
+            <div class="bg-dark-light rounded-xl p-6 shadow-lg h-fit">
                 <!-- Upload Section -->
                 <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-white mb-4 pb-2 border-b-2 border-purple-500">📤 Upload New Image</h3>
-                    <div class="border-2 border-dashed border-purple-500 rounded-lg p-6 text-center cursor-pointer hover:bg-gray-750 transition-colors" onclick="document.getElementById('imageUpload').click()">
-                        <p class="text-gray-300">📁 Click to upload image</p>
+                    <h3 class="text-lg font-semibold text-light mb-4 pb-2 border-b-2 border-primary">Upload New Image</h3>
+                    <div class="border-2 border-dashed border-primary rounded-lg p-6 text-center cursor-pointer hover:bg-dark/80 transition-colors" onclick="document.getElementById('imageUpload').click()">
+                        <p class="text-light/80">Click to upload image</p>
                         <input type="file" id="imageUpload" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
                     </div>
                 </div>
 
                 <!-- Text Settings Section -->
                 <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-white mb-4 pb-2 border-b-2 border-purple-500">🔤 Text Settings</h3>
+                    <h3 class="text-lg font-semibold text-light mb-4 pb-2 border-b-2 border-primary">Text Settings</h3>
 
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-400 mb-2">Preview Text:</label>
-                        <input type="text" id="previewText" value="To: Simon" oninput="updatePreview()" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <label class="block text-sm font-medium text-light/70 mb-2">Preview Text:</label>
+                        <input type="text" id="previewText" value="To: Simon" oninput="updatePreview()" class="w-full px-4 py-2 bg-dark border border-dark-light rounded-lg text-light placeholder-light/50 focus:ring-2 focus:ring-primary focus:border-transparent">
                     </div>
 
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-400 mb-2">Font Family:</label>
-                        <select id="fontFamily" onchange="updatePreview()" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <label class="block text-sm font-medium text-light/70 mb-2">Font Family:</label>
+                        <select id="fontFamily" onchange="updatePreview()" class="w-full px-4 py-2 bg-dark border border-dark-light rounded-lg text-light focus:ring-2 focus:ring-primary focus:border-transparent">
                             <option value="OpenSans">Open Sans (Clean)</option>
                             <option value="Roboto">Roboto (Modern)</option>
                             <option value="Caveat">Caveat (Handwritten)</option>
@@ -123,13 +142,13 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-400 mb-2">Font Size: <span id="fontSizeValue">40</span>px</label>
+                        <label class="block text-sm font-medium text-light/70 mb-2">Font Size: <span id="fontSizeValue">40</span>px</label>
                         <input type="range" id="fontSize" min="12" max="120" value="40" oninput="updateFontSize()" class="w-full">
                     </div>
 
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-400 mb-2">Font Weight:</label>
-                        <select id="fontWeight" onchange="updatePreview()" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <label class="block text-sm font-medium text-light/70 mb-2">Font Weight:</label>
+                        <select id="fontWeight" onchange="updatePreview()" class="w-full px-4 py-2 bg-dark border border-dark-light rounded-lg text-light focus:ring-2 focus:ring-primary focus:border-transparent">
                             <option value="normal">Normal</option>
                             <option value="bold">Bold</option>
                             <option value="100">Thin (100)</option>
@@ -141,75 +160,75 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-400 mb-2">Text Color:</label>
+                        <label class="block text-sm font-medium text-light/70 mb-2">Text Color:</label>
                         <input type="color" id="fontColor" value="#FFFFFF" oninput="updatePreview()" class="w-full h-12 rounded-lg cursor-pointer">
                     </div>
 
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-400 mb-2">Shadow Color:</label>
+                        <label class="block text-sm font-medium text-light/70 mb-2">Shadow Color:</label>
                         <input type="color" id="shadowColor" value="#000000" oninput="updatePreview()" class="w-full h-12 rounded-lg cursor-pointer">
                     </div>
                 </div>
 
                 <!-- Save Configuration Section -->
                 <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-white mb-4 pb-2 border-b-2 border-purple-500">💾 Save Configuration</h3>
+                    <h3 class="text-lg font-semibold text-light mb-4 pb-2 border-b-2 border-primary">Save Configuration</h3>
 
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-400 mb-2">Image ID:</label>
-                        <input type="number" id="imageId" value="1" min="1" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <label class="block text-sm font-medium text-light/70 mb-2">Image ID:</label>
+                        <input type="number" id="imageId" value="1" min="1" class="w-full px-4 py-2 bg-dark border border-dark-light rounded-lg text-light focus:ring-2 focus:ring-primary focus:border-transparent">
                     </div>
 
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-400 mb-2">Note (internal reference):</label>
-                        <input type="text" id="configNote" placeholder="e.g., Email banner, Welcome image" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <label class="block text-sm font-medium text-light/70 mb-2">Note (internal reference):</label>
+                        <input type="text" id="configNote" placeholder="e.g., Email banner, Welcome image" class="w-full px-4 py-2 bg-dark border border-dark-light rounded-lg text-light placeholder-light/50 focus:ring-2 focus:ring-primary focus:border-transparent">
                     </div>
 
-                    <button onclick="saveConfiguration()" class="w-full bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">Save Configuration</button>
+                    <button onclick="saveConfiguration()" class="w-full bg-primary hover:bg-primary-hover text-light px-6 py-3 rounded-lg font-medium transition-colors">Save Configuration</button>
                 </div>
 
                 <!-- Saved Configurations Section -->
                 <div>
-                    <h3 class="text-lg font-semibold text-white mb-4 pb-2 border-b-2 border-purple-500">📋 Saved Configurations</h3>
+                    <h3 class="text-lg font-semibold text-light mb-4 pb-2 border-b-2 border-primary">Saved Configurations</h3>
                     <div class="saved-configs max-h-80 overflow-y-auto" id="savedConfigs">
-                        <div class="bg-gray-700 rounded-lg p-4">
-                            <p class="text-gray-400 text-sm">No configurations saved yet</p>
+                        <div class="bg-dark rounded-lg p-4">
+                            <p class="text-light/70 text-sm">No configurations saved yet</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Preview Area -->
-            <div class="bg-gray-800 rounded-xl p-6 shadow-lg">
+            <div class="bg-dark-light rounded-xl p-6 shadow-lg">
                 <!-- Preview Section -->
                 <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-white mb-4 pb-2 border-b-2 border-purple-500">👁️ Preview (Drag text to position)</h3>
-                    <div class="bg-gray-700 rounded-lg p-4 mb-4">
-                        <p class="text-gray-400 text-sm">💡 Click and drag the text anywhere on the image to set its position</p>
+                    <h3 class="text-lg font-semibold text-light mb-4 pb-2 border-b-2 border-primary">Preview (Drag text to position)</h3>
+                    <div class="bg-dark rounded-lg p-4 mb-4">
+                        <p class="text-light/70 text-sm">Click and drag the text anywhere on the image to set its position</p>
                     </div>
-                    <div class="bg-gray-900 rounded-lg overflow-hidden inline-block shadow-lg" id="canvasContainer">
+                    <div class="bg-dark rounded-lg overflow-hidden inline-block shadow-lg" id="canvasContainer">
                         <canvas id="previewCanvas" width="800" height="400" class="max-w-full h-auto"></canvas>
                     </div>
                 </div>
 
                 <!-- Current Position Section -->
                 <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-white mb-4 pb-2 border-b-2 border-purple-500">🎯 Current Position</h3>
-                    <div class="bg-gray-700 rounded-lg p-4">
-                        <p class="text-gray-300 text-sm mb-1">X: <span id="posX" class="text-purple-400 font-mono">0</span>px, Y: <span id="posY" class="text-purple-400 font-mono">0</span>px</p>
-                        <p class="text-gray-300 text-sm">Relative: <span id="posXRel" class="text-purple-400 font-mono">0</span>%, <span id="posYRel" class="text-purple-400 font-mono">0</span>%</p>
+                    <h3 class="text-lg font-semibold text-light mb-4 pb-2 border-b-2 border-primary">Current Position</h3>
+                    <div class="bg-dark rounded-lg p-4">
+                        <p class="text-light/80 text-sm mb-1">X: <span id="posX" class="text-primary font-mono">0</span>px, Y: <span id="posY" class="text-primary font-mono">0</span>px</p>
+                        <p class="text-light/80 text-sm">Relative: <span id="posXRel" class="text-primary font-mono">0</span>%, <span id="posYRel" class="text-primary font-mono">0</span>%</p>
                     </div>
                 </div>
 
                 <!-- Test URL Section -->
                 <div>
-                    <h3 class="text-lg font-semibold text-white mb-4 pb-2 border-b-2 border-purple-500">🔗 Test URL</h3>
+                    <h3 class="text-lg font-semibold text-light mb-4 pb-2 border-b-2 border-primary">Test URL</h3>
                     <div class="mb-3">
-                        <input type="text" id="testUrl" readonly class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-400 font-mono text-sm">
+                        <input type="text" id="testUrl" readonly class="w-full px-4 py-2 bg-dark border border-dark-light rounded-lg text-light/70 font-mono text-sm">
                     </div>
                     <div class="flex flex-col sm:flex-row gap-3">
-                        <button onclick="copyUrl()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors">Copy URL</button>
-                        <button onclick="window.open(document.getElementById('testUrl').value, '_blank')" class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors">Open in New Tab</button>
+                        <button onclick="copyUrl()" class="flex-1 bg-dark hover:bg-dark/80 text-light px-4 py-2 rounded-lg transition-colors">Copy URL</button>
+                        <button onclick="window.open(document.getElementById('testUrl').value, '_blank')" class="flex-1 bg-primary hover:bg-primary-hover text-light px-4 py-2 rounded-lg transition-colors">Open in New Tab</button>
                     </div>
                 </div>
             </div>
@@ -313,7 +332,7 @@
                             updatePreview();
                             updateTestUrl();
 
-                            alert(`✅ Image uploaded successfully as ID: ${result.imageId}`);
+                            alert(`Image uploaded successfully as ID: ${result.imageId}`);
                         };
                         img.src = e.target.result;
                     };
@@ -323,7 +342,7 @@
                 }
             } catch (error) {
                 console.error('Upload error:', error);
-                alert(`❌ Upload failed: ${error.message}`);
+                alert(`Upload failed: ${error.message}`);
             }
 
             // Clear the file input
@@ -497,7 +516,7 @@
                     localConfigs[config.imageId] = config;
                     localStorage.setItem('dynamicImageConfigs', JSON.stringify(localConfigs));
 
-                    alert(`✅ Configuration saved for Image ID: ${config.imageId}`);
+                    alert(`Configuration saved for Image ID: ${config.imageId}`);
                     loadSavedConfigs();
                 } else {
                     throw new Error(result.error || 'Failed to save configuration');
@@ -509,7 +528,7 @@
                 localConfigs[config.imageId] = config;
                 localStorage.setItem('dynamicImageConfigs', JSON.stringify(localConfigs));
 
-                alert(`⚠️ Server save failed. Saved to browser storage only.\nError: ${error.message}`);
+                alert(`Server save failed. Saved to browser storage only.\nError: ${error.message}`);
                 loadSavedConfigs();
             }
         }
@@ -540,7 +559,7 @@
             const container = document.getElementById('savedConfigs');
 
             if (Object.keys(configs).length === 0) {
-                container.innerHTML = '<div class="bg-gray-700 rounded-lg p-4"><p class="text-gray-400 text-sm">No configurations saved yet</p></div>';
+                container.innerHTML = '<div class="bg-dark rounded-lg p-4"><p class="text-light/70 text-sm">No configurations saved yet</p></div>';
                 return;
             }
 
@@ -549,14 +568,14 @@
                 const item = document.createElement('div');
                 item.className = 'config-item';
                 item.innerHTML = `
-                    <div class="flex justify-between items-start gap-3 bg-gray-700 hover:bg-gray-650 rounded-lg p-4 cursor-pointer transition-colors">
+                    <div class="flex justify-between items-start gap-3 bg-dark hover:bg-dark/80 rounded-lg p-4 cursor-pointer transition-colors">
                         <div class="flex-1" onclick="loadConfiguration('${id}')">
-                            <span class="text-white font-semibold">ID: ${id}</span>
-                            ${config.note ? `<br><small class="text-gray-400">📝 ${config.note}</small>` : ''}<br>
-                            <small class="text-gray-500">Font: ${config.fontFamily} ${config.fontSize}px</small><br>
-                            <small class="text-gray-500">Pos: ${config.posXRel}%, ${config.posYRel}%</small>
+                            <span class="text-light font-semibold">ID: ${id}</span>
+                            ${config.note ? `<br><small class="text-light/70">${config.note}</small>` : ''}<br>
+                            <small class="text-light/60">Font: ${config.fontFamily} ${config.fontSize}px</small><br>
+                            <small class="text-light/60">Pos: ${config.posXRel}%, ${config.posYRel}%</small>
                         </div>
-                        <button onclick="deleteConfiguration('${id}', event)" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex-shrink-0">🗑️ Delete</button>
+                        <button onclick="deleteConfiguration('${id}', event)" class="bg-primary hover:bg-primary-hover text-light px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex-shrink-0">Delete</button>
                     </div>
                 `;
                 container.appendChild(item);
@@ -577,14 +596,14 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    alert(`✅ Configuration deleted for Image ID: ${imageId}`);
+                    alert(`Configuration deleted for Image ID: ${imageId}`);
                     loadSavedConfigs();
                 } else {
                     throw new Error(result.error || 'Failed to delete configuration');
                 }
             } catch (error) {
                 console.error('Delete error:', error);
-                alert(`❌ Failed to delete: ${error.message}`);
+                alert(`Failed to delete: ${error.message}`);
             }
         }
 
@@ -675,9 +694,9 @@
 
             // Highlight active config
             document.querySelectorAll('.config-item > div').forEach(item => {
-                item.classList.remove('ring-2', 'ring-purple-500');
+                item.classList.remove('ring-2', 'ring-primary');
                 if (item.textContent.includes(`ID: ${imageId}`)) {
-                    item.classList.add('ring-2', 'ring-purple-500');
+                    item.classList.add('ring-2', 'ring-primary');
                 }
             });
         }
@@ -685,7 +704,7 @@
         function copyUrl() {
             const url = document.getElementById('testUrl').value;
             navigator.clipboard.writeText(url).then(() => {
-                alert('✅ URL copied to clipboard!');
+                alert('URL copied to clipboard!');
             });
         }
     </script>

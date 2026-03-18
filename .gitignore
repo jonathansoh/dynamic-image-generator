@@ -10,6 +10,7 @@ images/*.webp
 # PHP configuration
 .env.local
 .env.production
+.env
 
 # IDE files
 .vscode/
