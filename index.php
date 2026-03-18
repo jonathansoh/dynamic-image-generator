@@ -125,7 +125,10 @@ if ($text) {
     if (file_exists($fontPath)) {
         // Use TrueType font
         $angle = 0;
-        $bbox = imagettfbbox($scaledFontSize, $angle, $fontPath, $text);
+
+        // Convert pixels to points for GD library (1px = 0.75pt at 96 DPI)
+        $fontSizeInPoints = $scaledFontSize * 0.75;
+        $bbox = imagettfbbox($fontSizeInPoints, $angle, $fontPath, $text);
 
         // Calculate text dimensions for centering (matching canvas textAlign='center' and textBaseline='middle')
         $textWidth = $bbox[2] - $bbox[0];
@@ -141,10 +144,10 @@ if ($text) {
         error_log("Y Position Debug: textY=$textY, bbox[1]=" . $bbox[1] . ", bbox[7]=" . $bbox[7] . ", textHeight=$textHeight, y=$y");
 
         // Add shadow
-        imagettftext($image, $scaledFontSize, $angle, $x + 2, $y + 2, $shadowColor, $fontPath, $text);
+        imagettftext($image, $fontSizeInPoints, $angle, $x + 2, $y + 2, $shadowColor, $fontPath, $text);
 
         // Add main text
-        imagettftext($image, $scaledFontSize, $angle, $x, $y, $fontColor, $fontPath, $text);
+        imagettftext($image, $fontSizeInPoints, $angle, $x, $y, $fontColor, $fontPath, $text);
     } else {
         // Font not found - show error in image
         $errorColor = imagecolorallocate($image, 255, 0, 0);
@@ -213,7 +216,10 @@ function createPlaceholderImage($config, $text) {
 
         if (file_exists($fontPath)) {
             $angle = 0;
-            $bbox = imagettfbbox($scaledFontSize, $angle, $fontPath, $text);
+
+            // Convert pixels to points for GD library (1px = 0.75pt at 96 DPI)
+            $fontSizeInPoints = $scaledFontSize * 0.75;
+            $bbox = imagettfbbox($fontSizeInPoints, $angle, $fontPath, $text);
 
             // Calculate text dimensions for centering (matching canvas textAlign='center' and textBaseline='middle')
             $textWidth = $bbox[2] - $bbox[0];
@@ -222,8 +228,8 @@ function createPlaceholderImage($config, $text) {
             // Center vertically: use baseline + half font size
             $y = $textY + $scaledFontSize / 2;
 
-            imagettftext($image, $scaledFontSize, $angle, $x + 2, $y + 2, $shadowColor, $fontPath, $text);
-            imagettftext($image, $scaledFontSize, $angle, $x, $y, $fontColor, $fontPath, $text);
+            imagettftext($image, $fontSizeInPoints, $angle, $x + 2, $y + 2, $shadowColor, $fontPath, $text);
+            imagettftext($image, $fontSizeInPoints, $angle, $x, $y, $fontColor, $fontPath, $text);
         } else {
             // Fallback to built-in font if TTF not found
             $fontVariant = 5;
