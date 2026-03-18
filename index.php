@@ -95,7 +95,7 @@ $imageHeight = imagesy($image);
 // If canvas was 800px but actual image is 1920px, scale font by 2.4x
 $canvasWidth = $config['canvasWidth'] ?? 800;
 $actualImageWidth = $config['originalImageWidth'] ?? $imageWidth;
-$fontScale = $imageWidth / $canvasWidth;
+$fontScale = ($imageWidth / $canvasWidth) * 0.90;  // Scale down 10% for better match
 $scaledFontSize = (int)($config['fontSize'] * $fontScale);
 
 // Calculate text position from relative percentage
@@ -136,7 +136,7 @@ if ($text) {
 
         // Center vertically: use a simpler approach that matches canvas middle baseline
         // The bbox[1] is the Y coordinate of the bottom edge (baseline is roughly in the middle)
-        $y = $textY - $bbox[1] / 1.5;
+        $y = $textY - $bbox[1] / 1.35;  // Fine-tuned to move text down slightly
 
         // Add shadow
         imagettftext($image, $scaledFontSize, $angle, $x + 2, $y + 2, $shadowColor, $fontPath, $text);
@@ -186,7 +186,7 @@ function createPlaceholderImage($config, $text) {
 
     // Scale font size (placeholder is 800px wide)
     $canvasWidth = $config['canvasWidth'] ?? 800;
-    $fontScale = $width / $canvasWidth;
+    $fontScale = ($width / $canvasWidth) * 0.90;  // Scale down 10% for better match
     $scaledFontSize = (int)($config['fontSize'] * $fontScale);
 
     // Parse colors
@@ -216,7 +216,7 @@ function createPlaceholderImage($config, $text) {
             // Calculate text dimensions for centering (matching canvas textAlign='center' and textBaseline='middle')
             $textWidth = $bbox[2] - $bbox[0];
             $x = $textX - $textWidth / 2 - $bbox[0];
-            $y = $textY - $bbox[1] / 1.5;
+            $y = $textY - $bbox[1] / 1.35;  // Fine-tuned to move text down slightly
 
             imagettftext($image, $scaledFontSize, $angle, $x + 2, $y + 2, $shadowColor, $fontPath, $text);
             imagettftext($image, $scaledFontSize, $angle, $x, $y, $fontColor, $fontPath, $text);
