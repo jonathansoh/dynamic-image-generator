@@ -24,8 +24,8 @@ require_once 'auth.php';
                             hover: '#F04E23',
                         },
                         dark: {
-                            DEFAULT: '#3D191A',
-                            light: '#4a2122',
+                            DEFAULT: '#111928',
+                            light: '#1a2738',
                         },
                         light: {
                             DEFAULT: '#FFF1E2',
