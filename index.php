@@ -120,13 +120,16 @@ if ($text) {
         $angle = 0;
         $bbox = imagettfbbox($config['fontSize'], $angle, $fontPath, $text);
 
-        // Calculate text dimensions
+        // Calculate text dimensions for centering (matching canvas textAlign='center' and textBaseline='middle')
         $textWidth = $bbox[2] - $bbox[0];
-        $textHeight = $bbox[7] - $bbox[1];
 
-        // Adjust position based on bounding box
-        $x = $textX - ($bbox[2] - $bbox[0]) / 2 - $bbox[0];
-        $y = $textY - ($bbox[7] - $bbox[1]) / 2 - $bbox[7];
+        // Center horizontally: position is at center, so subtract half width
+        // The bbox[0] is the left edge offset from the baseline origin
+        $x = $textX - $textWidth / 2 - $bbox[0];
+
+        // Center vertically: use a simpler approach that matches canvas middle baseline
+        // The bbox[1] is the Y coordinate of the bottom edge (baseline is roughly in the middle)
+        $y = $textY - $bbox[1] / 2;
 
         // Add shadow
         imagettftext($image, $config['fontSize'], $angle, $x + 2, $y + 2, $shadowColor, $fontPath, $text);
@@ -197,8 +200,11 @@ function createPlaceholderImage($config, $text) {
         if (file_exists($fontPath)) {
             $angle = 0;
             $bbox = imagettfbbox($config['fontSize'], $angle, $fontPath, $text);
-            $x = $textX - ($bbox[2] - $bbox[0]) / 2 - $bbox[0];
-            $y = $textY - ($bbox[7] - $bbox[1]) / 2 - $bbox[7];
+
+            // Calculate text dimensions for centering (matching canvas textAlign='center' and textBaseline='middle')
+            $textWidth = $bbox[2] - $bbox[0];
+            $x = $textX - $textWidth / 2 - $bbox[0];
+            $y = $textY - $bbox[1] / 2;
 
             imagettftext($image, $config['fontSize'], $angle, $x + 2, $y + 2, $shadowColor, $fontPath, $text);
             imagettftext($image, $config['fontSize'], $angle, $x, $y, $fontColor, $fontPath, $text);
