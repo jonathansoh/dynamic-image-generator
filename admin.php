@@ -363,7 +363,14 @@ require_once 'auth.php';
 
             // Get text settings
             const text = document.getElementById('previewText').value;
-            const fontSize = document.getElementById('fontSize').value;
+            let fontSize = document.getElementById('fontSize').value;
+
+            // Account for CSS scaling (canvas is displayed smaller than actual dimensions)
+            const displayWidth = canvas.getBoundingClientRect().width;
+            const actualWidth = canvas.width;
+            const scale = actualWidth / displayWidth;
+            fontSize = fontSize * scale;
+
             const fontFamily = document.getElementById('fontFamily').value;
             const fontWeight = document.getElementById('fontWeight').value;
             const fontColor = document.getElementById('fontColor').value;
