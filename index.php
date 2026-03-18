@@ -134,12 +134,13 @@ if ($text) {
         // The bbox[0] is the left edge offset from the baseline origin
         $x = $textX - $textWidth / 2 - $bbox[0];
 
-        // Center vertically: use a simpler approach that matches canvas middle baseline
-        // The bbox[1] is the Y coordinate of the bottom edge (baseline is roughly in the middle)
-        $y = $textY - $bbox[1] / 1.35;  // Fine-tuned to move text down slightly
+        // Center vertically: calculate proper center of text bounding box
+        // Canvas uses textBaseline='middle', so y is the center point
+        $textHeight = $bbox[7] - $bbox[1];  // Full height of text
+        $y = $textY + ($bbox[1] + $bbox[7]) / 2;  // Center the bounding box on textY
 
         // Debug: Log Y calculation (check error.log)
-        error_log("Y Position Debug: textY=$textY, bbox[1]=" . $bbox[1] . ", y=$y, divisor=1.35");
+        error_log("Y Position Debug: textY=$textY, bbox[1]=" . $bbox[1] . ", bbox[7]=" . $bbox[7] . ", textHeight=$textHeight, y=$y");
 
         // Add shadow
         imagettftext($image, $scaledFontSize, $angle, $x + 2, $y + 2, $shadowColor, $fontPath, $text);
@@ -219,7 +220,10 @@ function createPlaceholderImage($config, $text) {
             // Calculate text dimensions for centering (matching canvas textAlign='center' and textBaseline='middle')
             $textWidth = $bbox[2] - $bbox[0];
             $x = $textX - $textWidth / 2 - $bbox[0];
-            $y = $textY - $bbox[1] / 1.35;  // Fine-tuned to move text down slightly
+
+            // Center vertically using full text height
+            $textHeight = $bbox[7] - $bbox[1];
+            $y = $textY + ($bbox[1] + $bbox[7]) / 2;
 
             imagettftext($image, $scaledFontSize, $angle, $x + 2, $y + 2, $shadowColor, $fontPath, $text);
             imagettftext($image, $scaledFontSize, $angle, $x, $y, $fontColor, $fontPath, $text);
